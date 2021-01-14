@@ -4,5 +4,5 @@ class Stock {
   String price;
   bool isIncrement;
 
-  Stock(this.rank, this.enterprise, this.price, this.isIncrement);
+  Stock({this.rank, this.enterprise, this.price, this.isIncrement});
 }

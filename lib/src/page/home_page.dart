@@ -1,16 +1,26 @@
+import 'package:ceiling/src/page/add_my_stock_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:english_words/english_words.dart';
+import 'package:shimmer/shimmer.dart';
 import '../bloc/bloc.dart';
 import '../model/Stock.dart';
 import '../model/News.dart';
 import '../model/Index.dart';
+import '../model/MyStock.dart';
 import 'service_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 final dummyImages = [
-  'https://cdn.pixabay.com/photo/2014/07/01/12/35/taxi-381233__340.jpg',
-  'https://cdn.pixabay.com/photo/2014/01/04/13/34/taxi-238478__340.jpg',
-  'https://cdn.pixabay.com/photo/2017/01/28/02/24/japan-2014617__340.jpg',
+  'https://cdn.pixabay.com/photo/2016/12/13/22/15/chart-1905225__340.jpg',
+  'https://cdn.pixabay.com/photo/2016/12/13/22/15/chart-1905224__340.jpg',
+  'https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880__340.jpg',
+];
+
+final imagePath = [
+  'assets/chart3.jpg',
+  'assets/chart2.jpg',
+  'assets/chart1.jpg',
 ];
 
 class HomePage extends StatefulWidget {
@@ -25,29 +35,45 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        _buildGuideLineText('Stock Price', Icons.attach_money),
-        _buildTop(),
+        _buildGuideLineText('Domestic index', Icons.bar_chart, false),
+        _buildIndexTab(),
         Divider(),
-        _buildGuideLineText('News', Icons.my_library_books),
-        _buildMiddle(),
+        //_buildGuideLineText('News', Icons.my_library_books, false),
+        //_buildNewsTab(),
+        //Divider(),
+        _buildGuideLineText('My Tickers', Icons.money, true),
+        _buildMyStocksLayout(),
         Divider(),
-        _buildGuideLineText('Popular Stocks', Icons.legend_toggle),
+        _buildGuideLineText('Popular Tickers', Icons.legend_toggle, false),
         _buildBottom(),
       ],
     );
   }
 
-  Widget _buildGuideLineText(String value, IconData icon) {
+  Widget _buildGuideLineText(String value, IconData icon, bool button) {
     return Container(
       padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
       child: Row(
+        mainAxisSize: MainAxisSize.max,
         children: [
           Text(value,
               style: TextStyle(
                   color: Colors.black87,
                   fontSize: 30,
                   fontWeight: FontWeight.w600)),
-          Icon(icon, size: 30)
+          Icon(icon, size: 30),
+          Spacer(),
+          if (button)
+            IconButton(
+                icon: Icon(Icons.addchart),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddMyStockPage(),
+                    ),
+                  );
+                }), //
         ],
       ),
     );
@@ -56,7 +82,89 @@ class _HomePageState extends State<HomePage> {
   /**
    *  Start TOP Layout
    */
-  Widget _buildTop() {
+  Widget _buildIndexTab() {
+    return StreamBuilder<List<Index>>(
+        stream: bloc.indexObservable,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data.length > 0)
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              child: CarouselSlider(
+                  options: CarouselOptions(
+                    viewportFraction: 0.7,
+                    autoPlay: true,
+                    scrollDirection: Axis.vertical,
+                  ),
+                  items: _buildIndexContainerList(snapshot.data)),
+            );
+          else
+            return Container(
+              //margin: EdgeInsets.symmetric(vertical: 125),
+              child: myCircularIndicator(),
+            );
+        });
+  }
+
+  List<Widget> _buildIndexContainerList(List<Index> list) {
+    return List.generate(list.length, (index) {
+      var isIncrement =
+          list[index].percent.substring(0, 1) == '+' ? true : false;
+      return Container(
+          margin: EdgeInsets.symmetric(vertical: 10.0), //아이템별 마진
+          child: Stack(
+            children: [
+              ClipRRect(
+                //위젯을 둥근 사각형으로 자르는 위젯
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  imagePath[index % 3],
+                  fit: BoxFit.fill,
+                  width: MediaQuery.of(context).size.width, //기기 가로 크기
+                  height: 200,
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(4),
+                  color: Colors.black.withOpacity(0.5),
+                  width: double.infinity, //match_parent
+                  height: double.infinity, //match_parent
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        list[index].name,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        list[index].point,
+                        style: TextStyle(
+                            color: isIncrement ? Colors.red : Colors.blue),
+                      ),
+                      Text(
+                        list[index].rate,
+                        style: TextStyle(
+                            color: isIncrement ? Colors.red : Colors.blue),
+                      ),
+                      Text(
+                        list[index].percent,
+                        style: TextStyle(
+                            color: isIncrement ? Colors.red : Colors.blue),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ));
+    });
+  }
+  /*
+  Widget _buildIndexTab() {
     final mWidth = MediaQuery.of(context).size.width / 3;
     return StreamBuilder<List<Index>>(
         stream: bloc.indexObservable,
@@ -68,29 +176,20 @@ class _HomePageState extends State<HomePage> {
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
                 children: [
-                  _buildIndexContainer(snapshot.data[0]),
-                  _buildIndexContainer(snapshot.data[1]),
-                  _buildIndexContainer(snapshot.data[2]),
-                  _buildIndexContainer(snapshot.data[3]),
+                  for (var item in snapshot.data) _buildIndexContainer(item),
                 ],
               ),
             );
           return Container(
-            margin: EdgeInsets.symmetric(vertical: mWidth / 2),
-            child: Center(
-                child: SizedBox(
-              width: 10,
-              height: 10,
-              child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation(Colors.green[200])),
-            )),
+            height: mWidth,
+            child: myCircularIndicator(),
           );
         });
-  }
+  }*/
 
   Widget _buildIndexContainer(Index item) {
     final mWidth = MediaQuery.of(context).size.width / 3;
-    final isIncrement = item.rate.substring(0, 1) == '+' ? true : false;
+    final isIncrement = item.percent.substring(0, 1) == '+' ? true : false;
     return Container(
       height: mWidth,
       width: mWidth,
@@ -128,7 +227,7 @@ class _HomePageState extends State<HomePage> {
   /**
    *  Start MIDDLE Layout
    */
-  Widget _buildMiddle() {
+  Widget _buildNewsTab() {
     return StreamBuilder<List<News>>(
         stream: bloc.newsObservable,
         builder: (context, snapshot) {
@@ -141,14 +240,8 @@ class _HomePageState extends State<HomePage> {
             );
           else
             return Container(
-              margin: EdgeInsets.symmetric(vertical: 126),
-              child: Center(
-                  child: SizedBox(
-                width: 10,
-                height: 10,
-                child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.green[200])),
-              )),
+              margin: EdgeInsets.symmetric(vertical: 125),
+              child: myCircularIndicator(),
             );
         });
   }
@@ -171,17 +264,13 @@ class _HomePageState extends State<HomePage> {
                     ClipRRect(
                       //위젯을 둥근 사각형으로 자르는 위젯
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        list[index].src,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      child: CachedNetworkImage(
+                        imageUrl: list[index].src,
                         fit: BoxFit.fill,
                         width: MediaQuery.of(context).size.width, //기기 가로 크기
                         height: 250,
+                        placeholder: (context, url) => myCircularIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                     ),
                     ClipRRect(
@@ -218,13 +307,7 @@ class _HomePageState extends State<HomePage> {
           else
             return Container(
               margin: EdgeInsets.symmetric(vertical: 50),
-              child: Center(
-                  child: SizedBox(
-                width: 10,
-                height: 10,
-                child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.green[200])),
-              )),
+              child: myCircularIndicator(),
             );
         });
   }
@@ -250,5 +333,69 @@ class _HomePageState extends State<HomePage> {
                     : Icon(Icons.arrow_drop_down, color: Colors.blue, size: 20),
               ],
             )));
+  }
+
+  /**
+   * Start MyStock Layout
+   */
+  Widget _buildMyStocksLayout() {
+    return StreamBuilder<List<MyStock>>(
+        stream: bloc.myStockObservable,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data[0].rate != null) {
+            return ListView(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              children: _buildMyStockTile(snapshot.data),
+            );
+          } else {
+            return ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: 2,
+                itemBuilder: (context, index) => Container(
+                      margin: EdgeInsets.all(5),
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey[200],
+                        highlightColor: Colors.grey[100],
+                        child: ListTile(
+                          tileColor: Colors.grey[200],
+                        ),
+                      ),
+                    ));
+          }
+        });
+  }
+
+  List<Widget> _buildMyStockTile(List<MyStock> items) {
+    return List.generate(items.length, (index) {
+      bool isNegative = items[index].rate.isNegative;
+      return ListTile(
+        leading: isNegative
+            ? Icon(
+                Icons.arrow_drop_down,
+                color: Colors.blue,
+              )
+            : Icon(Icons.arrow_drop_up, color: Colors.red),
+        title: Text(items[index].enterprise),
+        trailing: Text(
+          items[index].rate.toString() + '%',
+          style: TextStyle(color: isNegative ? Colors.blue : Colors.red),
+        ),
+      );
+    });
+  }
+
+  Widget myCircularIndicator() {
+    return Center(
+        child: SizedBox(
+      width: 20,
+      height: 20,
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(
+          Colors.green[200],
+        ),
+      ),
+    ));
   }
 }

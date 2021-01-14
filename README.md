@@ -1,16 +1,15 @@
-# ceiling
+# Ceiling 👓
 
-A new Flutter project.
+증권 시세 및 경제 뉴스, 내 주식 상황 정보를 알 수 있는 Flutter 샘플 애플리케이션
 
-## Getting Started
+## 제공 기능 🛠
+- 현재 인기있는 국내 종목 리스트
+- 실시간 경제 뉴스 제공
+- 코스피, 코스닥, 나스닥 등 세계 증시 정보
+- 보유한 주식의 상승률, 하락률
 
-This project is a starting point for a Flutter application.
+## STACK 🗡
+- Flutter
+- rxdart, BloC pattern
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
