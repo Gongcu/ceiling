@@ -1,6 +1,8 @@
 import 'package:ceiling/src/bloc/xlsx_bloc.dart';
+import 'package:ceiling/src/model/MyStock.dart';
 import 'package:flutter/material.dart';
 import '../model/SavedStock.dart';
+import '../db/MyStockDBHelper.dart';
 
 class AddMyStockPage extends StatefulWidget {
   @override
@@ -107,7 +109,9 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
         itemCount: searchedList.length,
         itemBuilder: (context, index) {
           return InkWell(
-              onTap: () => showInputDialog(),
+              onTap: () {
+                showInputDialog(searchedList[index]);
+              },
               child: ListTile(
                 subtitle: Text(searchedList[index].ticker),
                 title: Text(searchedList[index].enterprise),
@@ -122,7 +126,7 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
     return s2?.toLowerCase().contains(s1?.toLowerCase());
   }
 
-  void showInputDialog() {
+  void showInputDialog(SavedStock selectedItem) {
     TextEditingController _tc1 = TextEditingController();
     TextEditingController _tc2 = TextEditingController();
     showDialog(
@@ -164,7 +168,14 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
             actions: [
               FlatButton(
                 child: Text('확인', style: TextStyle(color: Colors.blueAccent)),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  MyStockDBHelper().insertData(MyStock(
+                      enterprise: selectedItem.enterprise,
+                      symbol: selectedItem.ticker,
+                      stockCount: int.parse(_tc1.text),
+                      buying: double.parse(_tc2.text)));
+                  Navigator.pop(context);
+                },
               ),
               FlatButton(
                 child: Text('취소', style: TextStyle(color: Colors.redAccent)),

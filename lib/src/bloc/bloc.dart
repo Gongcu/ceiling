@@ -6,15 +6,13 @@ import '../model/News.dart';
 import '../model/Stock.dart';
 import '../model/Index.dart';
 import '../model/MyStock.dart';
+import '../db/MyStockDBHelper.dart';
 
 class Bloc {
   List<Stock> stocks = [];
   List<News> newsList = [];
   List<Index> indexs = [];
-  List<MyStock> mStocks = [
-    MyStock('삼성전자', '005930.KS', 10, 85000),
-    MyStock('Apple Inc.', 'aapl', 7, 127.7),
-  ];
+  List<MyStock> mStocks = [];
 
   Set<WordPair> saved = Set<WordPair>();
 
@@ -32,7 +30,15 @@ class Bloc {
     parse.main(stocks);
     parse.getNews(newsList);
     parse.getIndex(indexs);
-    parse.getMyStockInfo(mStocks);
+
+    MyStockDBHelper().getAll().then((value) {
+      if (value.length == 0)
+        successGetMyStockInfo([]);
+      else {
+        mStocks = value;
+        parse.getMyStockInfo(mStocks);
+      }
+    });
   }
 
   get indexObservable => _subjectIndexList.stream;
@@ -67,8 +73,13 @@ class Bloc {
     _subjectIndexList.sink.add(indexs);
   }
 
-  successGetMyStockInfo() {
-    _subjectMyStockList.sink.add(mStocks);
+  successGetMyStockInfo(List<MyStock> myStocks) {
+    _subjectMyStockList.sink.add(myStocks);
+  }
+
+  insertFromMyStock(MyStock item) {
+    mStocks.add(item);
+    parse.getMyStockInfo(mStocks);
   }
 
   dispose() {

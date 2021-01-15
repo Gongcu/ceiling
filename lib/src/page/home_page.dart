@@ -163,66 +163,6 @@ class _HomePageState extends State<HomePage> {
           ));
     });
   }
-  /*
-  Widget _buildIndexTab() {
-    final mWidth = MediaQuery.of(context).size.width / 3;
-    return StreamBuilder<List<Index>>(
-        stream: bloc.indexObservable,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data.length > 0)
-            return Container(
-              height: mWidth,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                children: [
-                  for (var item in snapshot.data) _buildIndexContainer(item),
-                ],
-              ),
-            );
-          return Container(
-            height: mWidth,
-            child: myCircularIndicator(),
-          );
-        });
-  }*/
-
-  Widget _buildIndexContainer(Index item) {
-    final mWidth = MediaQuery.of(context).size.width / 3;
-    final isIncrement = item.percent.substring(0, 1) == '+' ? true : false;
-    return Container(
-      height: mWidth,
-      width: mWidth,
-      margin: EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black26),
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            item.name,
-            textAlign: TextAlign.center,
-            style:
-                TextStyle(color: Colors.black87, fontWeight: FontWeight.w800),
-          ),
-          Text(
-            item.point,
-            style: TextStyle(color: isIncrement ? Colors.red : Colors.blue),
-          ),
-          Text(
-            item.rate,
-            style: TextStyle(color: isIncrement ? Colors.red : Colors.blue),
-          ),
-          Text(
-            item.percent,
-            style: TextStyle(color: isIncrement ? Colors.red : Colors.blue),
-          ),
-        ],
-      ),
-    );
-  }
 
   /**
    *  Start MIDDLE Layout
@@ -342,7 +282,8 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder<List<MyStock>>(
         stream: bloc.myStockObservable,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data[0].rate != null) {
+          if (snapshot.hasData) {
+            // && snapshot.data[0].rate != null) {
             return ListView(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
