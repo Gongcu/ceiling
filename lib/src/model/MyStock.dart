@@ -4,6 +4,7 @@ class MyStock {
   String symbol;
   int stockCount;
   double buying;
+  double currPrice;
   double rate;
 
   MyStock(
@@ -12,5 +13,6 @@ class MyStock {
       this.symbol,
       this.stockCount,
       this.buying,
+      this.currPrice,
       this.rate});
 }

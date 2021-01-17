@@ -3,6 +3,7 @@ import 'package:ceiling/src/model/MyStock.dart';
 import 'package:flutter/material.dart';
 import '../model/SavedStock.dart';
 import '../db/MyStockDBHelper.dart';
+import 'package:get/get.dart';
 
 class AddMyStockPage extends StatefulWidget {
   @override
@@ -93,6 +94,7 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
       stream: xlsxBloc.savedStockContoller,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
+        if (_searchText.isBlank) return Container(color: Colors.white);
         return _buildList(snapshot.data);
       },
     );
@@ -110,7 +112,7 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
         itemBuilder: (context, index) {
           return InkWell(
               onTap: () {
-                showInputDialog(searchedList[index]);
+                showBottomSheet(searchedList[index]);
               },
               child: ListTile(
                 subtitle: Text(searchedList[index].ticker),
@@ -126,63 +128,104 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
     return s2?.toLowerCase().contains(s1?.toLowerCase());
   }
 
-  void showInputDialog(SavedStock selectedItem) {
+  void showBottomSheet(SavedStock selectedItem) {
     TextEditingController _tc1 = TextEditingController();
     TextEditingController _tc2 = TextEditingController();
-    showDialog(
-        context: context,
-        barrierDismissible: false, //다이얼로그 외의 영역 터치 가능 여부
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-            title: Text(
+    Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
               '보유한 주식 정보',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _tc1,
-                  maxLines: 1,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(fontSize: 13),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(gapPadding: 8),
-                      labelText: '보유 수량을 입력하세요.'),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextField(
-                  controller: _tc2,
-                  maxLines: 1,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(fontSize: 13),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(gapPadding: 1),
-                      labelText: '매수가를 입력하세요'),
-                ),
-              ],
+            SizedBox(
+              height: 20,
             ),
-            actions: [
-              FlatButton(
-                child: Text('확인', style: TextStyle(color: Colors.blueAccent)),
-                onPressed: () {
-                  MyStockDBHelper().insertData(MyStock(
-                      enterprise: selectedItem.enterprise,
-                      symbol: selectedItem.ticker,
-                      stockCount: int.parse(_tc1.text),
-                      buying: double.parse(_tc2.text)));
-                  Navigator.pop(context);
-                },
+            TextField(
+              controller: _tc1,
+              maxLines: 1,
+              keyboardType: TextInputType.numberWithOptions(signed: false),
+              style: TextStyle(fontSize: 13),
+              decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey[200])),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey[200])),
+                  labelText: '보유 수량을 입력하세요.'),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            TextField(
+              controller: _tc2,
+              maxLines: 1,
+              keyboardType: TextInputType.numberWithOptions(signed: false),
+              style: TextStyle(fontSize: 13),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey[200])),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey[200])),
+                labelText: selectedItem.ticker.substring(
+                            selectedItem.ticker.length - 2,
+                            selectedItem.ticker.length) ==
+                        'kr'
+                    ? '매수가를 입력하세요 (단위:원화)'
+                    : '매수가를 입력하세요 (단위:USD)',
               ),
-              FlatButton(
-                child: Text('취소', style: TextStyle(color: Colors.redAccent)),
-                onPressed: () => Navigator.pop(context),
-              )
-            ],
-          );
-        });
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FlatButton(
+                  child: Text(
+                    '확인',
+                    style: TextStyle(
+                        color: Colors.blueAccent, fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () {
+                    if (_tc1.text.isNum &&
+                        _tc2.text.isNum &&
+                        !int.parse(_tc1.text).isNegative &&
+                        !double.parse(_tc1.text).isNegative) {
+                      MyStockDBHelper().insertData(MyStock(
+                          enterprise: selectedItem.enterprise,
+                          symbol: selectedItem.ticker,
+                          stockCount: int.parse(_tc1.text),
+                          buying: double.parse(_tc2.text)));
+                      Get.back();
+                    } else {
+                      Get.snackbar('오류', '정상적인 값을 입력하세요.',
+                          backgroundColor: Colors.white.withAlpha(230));
+                    }
+                  },
+                ),
+                FlatButton(
+                  child: Text(
+                    '취소',
+                    style: TextStyle(
+                        color: Colors.redAccent, fontWeight: FontWeight.w600),
+                  ),
+                  onPressed: () => Get.back(),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      isScrollControlled: true,
+    );
   }
 }

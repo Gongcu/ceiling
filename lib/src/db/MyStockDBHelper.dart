@@ -64,9 +64,10 @@ class MyStockDBHelper {
     return res;
   }
 
-  deleteData(int id) async {
+  deleteData(MyStock item) async {
     final db = await database;
-    var res = db.rawDelete('DELETE FROM $tableName WHERE id=?', [id]);
+    var res = db.rawDelete('DELETE FROM $tableName WHERE id=?', [item.id]);
+    bloc.deleteFromMyStock(item);
     return res;
   }
 
