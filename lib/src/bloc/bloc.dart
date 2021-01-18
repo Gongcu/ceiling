@@ -66,6 +66,12 @@ class Bloc {
     parse.getMyStockInfo(mStocks, updatedMyStocks);
   }
 
+  updateFromMyStock(MyStock item) {
+    updatedMyStocks.removeWhere((element) => element.id == item.id);
+    //리스트로 변경된 아이템만 전달
+    parse.getMyStockInfo([item], updatedMyStocks);
+  }
+
   deleteFromMyStock(MyStock item) {
     updatedMyStocks.remove(item);
     _subjectMyStockList.sink.add(updatedMyStocks);

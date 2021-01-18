@@ -195,7 +195,7 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
                     if (_tc1.text.isNum &&
                         _tc2.text.isNum &&
                         !int.parse(_tc1.text).isNegative &&
-                        !double.parse(_tc1.text).isNegative) {
+                        !double.parse(_tc2.text).isNegative) {
                       MyStockDBHelper().insertData(MyStock(
                           enterprise: selectedItem.enterprise,
                           symbol: selectedItem.ticker,

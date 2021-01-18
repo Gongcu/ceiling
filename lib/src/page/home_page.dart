@@ -213,7 +213,8 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _buildMyStockTile(List<MyStock> items) {
     return List.generate(items.length, (index) {
-      bool isNegative = items[index].rate.isNegative;
+      bool isNegative =
+          (items[index].currPrice - items[index].buying).isNegative;
       return Dismissible(
         key: Key(items[index].id.toString()),
         onDismissed: (direction) async {
@@ -283,6 +284,8 @@ class _HomePageState extends State<HomePage> {
 
   void myStockInfo(MyStock item) {
     bool isNegative = item.rate.isNegative;
+    TextEditingController _tc1 = TextEditingController();
+    TextEditingController _tc2 = TextEditingController();
     showGeneralDialog(
       context: context,
       transitionDuration: Duration(milliseconds: 200),
@@ -290,101 +293,177 @@ class _HomePageState extends State<HomePage> {
       barrierLabel: '',
       pageBuilder: (context, animation1, animation2) {},
       transitionBuilder: (context, a1, a2, widget) {
-        return Transform.scale(
-          scale: a1.value,
-          child: Opacity(
-            opacity: a1.value,
-            child: AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    item.enterprise,
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    '${item.symbol}',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
-                  ),
-                ],
-              ),
-              content: Wrap(
-                runSpacing: 10,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Transform.scale(
+              scale: a1.value,
+              child: Opacity(
+                opacity: a1.value,
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('매입가'),
-                      Text('${item.buying}',
-                          style: TextStyle(color: Colors.black87)),
+                      Text(
+                        item.enterprise,
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        '${item.symbol}',
+                        style: TextStyle(fontSize: 13, color: Colors.black54),
+                      ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  content: Wrap(
+                    runSpacing: 10,
                     children: [
-                      Text('현재가'),
-                      Text('${item.currPrice}',
-                          style: TextStyle(color: Colors.black87)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('수량'),
-                      Text('${item.stockCount}',
-                          style: TextStyle(color: Colors.black87)),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('수익률'),
                       Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          isNegative
-                              ? Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.blue,
-                                )
-                              : Icon(Icons.arrow_drop_up, color: Colors.red),
-                          Text(
-                            '${item.rate}',
-                            style: TextStyle(
-                                color: isNegative ? Colors.blue : Colors.red),
+                          if (modifyAvailable) Text('매입가'),
+                          if (modifyAvailable)
+                            Text('${item.buying}',
+                                style: TextStyle(color: Colors.black87))
+                          else
+                            Expanded(
+                              child: TextField(
+                                controller: _tc1,
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey[100],
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[200])),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[200])),
+                                    labelText: '매입가를 입력하세요'),
+                              ),
+                            ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('현재가'),
+                          Text('${item.currPrice}',
+                              style: TextStyle(color: Colors.black87)),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (modifyAvailable) Text('수량'),
+                          if (modifyAvailable)
+                            Text('${item.stockCount}',
+                                style: TextStyle(color: Colors.black87))
+                          else
+                            Expanded(
+                              child: TextField(
+                                controller: _tc2,
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey[100],
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[200])),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[200])),
+                                    labelText: '매입 수량을 입력하세요'),
+                              ),
+                            ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('수익률'),
+                          Row(
+                            children: [
+                              isNegative
+                                  ? Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                    )
+                                  : Icon(Icons.arrow_drop_up,
+                                      color: Colors.red),
+                              Text(
+                                '${item.rate}',
+                                style: TextStyle(
+                                    color:
+                                        isNegative ? Colors.blue : Colors.red),
+                              ),
+                            ],
                           ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('평가금액'),
+                          Text(
+                              (item.stockCount * item.buying)
+                                  .toStringAsFixed(2),
+                              style: TextStyle(
+                                  color:
+                                      isNegative ? Colors.blue : Colors.red)),
                         ],
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('평가금액'),
-                      Text((item.stockCount * item.buying).toStringAsFixed(2),
-                          style: TextStyle(
-                              color: isNegative ? Colors.blue : Colors.red)),
-                    ],
-                  ),
-                ],
-              ),
-              actions: [
-                FlatButton(
-                  child: const Text('확인',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  onPressed: () {
-                    Get.back();
-                  },
+                  actions: [
+                    FlatButton(
+                      child: Text(modifyAvailable ? '수정' : '저장',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      onPressed: () {
+                        setState(() {
+                          if (modifyAvailable == false) {
+                            //save clicked
+                            if (_tc1.text.isNum &&
+                                _tc2.text.isNum &&
+                                !double.parse(_tc1.text).isNegative &&
+                                !int.parse(_tc2.text).isNegative) {
+                              item.buying = double.parse(_tc1.text);
+                              item.stockCount = int.parse(_tc2.text);
+                              MyStockDBHelper().updateData(item).then((value) {
+                                if (value == 1) Get.back();
+                                Get.snackbar(
+                                    value == 1 ? '수정 완료' : '오류',
+                                    value == 1
+                                        ? '${item.enterprise} 정보 변경이 완료되었습니다.'
+                                        : '정상적인 값을 입력하세요.',
+                                    backgroundColor:
+                                        Colors.white.withAlpha(230));
+                              });
+                            } else {
+                              Get.snackbar('오류', '정상적인 값을 입력하세요.',
+                                  backgroundColor: Colors.white.withAlpha(230));
+                            }
+                          }
+                          modifyAvailable = !modifyAvailable;
+                        });
+                      },
+                    ),
+                    FlatButton(
+                      child: Text(modifyAvailable ? '확인' : '취소',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      onPressed: () {
+                        modifyAvailable = true;
+                        Get.back();
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

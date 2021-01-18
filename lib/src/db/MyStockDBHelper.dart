@@ -56,11 +56,12 @@ class MyStockDBHelper {
     return list;
   }
 
-  updateData(MyStock item) async {
+  Future<int> updateData(MyStock item) async {
     final db = await database;
     var res = db.rawUpdate(
         'UPDATE $tableName SET stockCount=?,buying=? WHERE id=?',
         [item.stockCount, item.buying, item.id]);
+    bloc.updateFromMyStock(item);
     return res;
   }
 
