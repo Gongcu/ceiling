@@ -202,6 +202,8 @@ class _AddMyStockPageState extends State<AddMyStockPage> {
                           stockCount: int.parse(_tc1.text),
                           buying: double.parse(_tc2.text)));
                       Get.back();
+                      Get.snackbar('알림', '${selectedItem.enterprise}가 추가되었습니다.',
+                          backgroundColor: Colors.white.withAlpha(230));
                     } else {
                       Get.snackbar('오류', '정상적인 값을 입력하세요.',
                           backgroundColor: Colors.white.withAlpha(230));

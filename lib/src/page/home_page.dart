@@ -261,7 +261,8 @@ class _HomePageState extends State<HomePage> {
             child: Opacity(
               opacity: a1.value,
               child: AlertDialog(
-                title: Text('해당 주식을 삭제하시겠습니까?'),
+                title: Text('알림'),
+                content: Text('해당 주식을 삭제하시겠습니까?'),
                 actions: <Widget>[
                   FlatButton(
                     child: const Text('네'),

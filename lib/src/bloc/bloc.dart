@@ -62,8 +62,7 @@ class Bloc {
   }
 
   insertFromMyStock(MyStock item) {
-    mStocks.add(item);
-    parse.getMyStockInfo(mStocks, updatedMyStocks);
+    parse.getMyStockInfo([item], updatedMyStocks);
   }
 
   updateFromMyStock(MyStock item) {
