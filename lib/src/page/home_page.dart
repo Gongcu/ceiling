@@ -66,6 +66,7 @@ class _HomePageState extends State<HomePage> {
           if (button)
             IconButton(
                 icon: Icon(Icons.addchart),
+                tooltip: 'Add My Tickers',
                 onPressed: () {
                   Get.to(
                     AddMyStockPage(),
@@ -261,17 +262,26 @@ class _HomePageState extends State<HomePage> {
             child: Opacity(
               opacity: a1.value,
               child: AlertDialog(
-                title: Text('알림'),
+                title: Text(
+                  '알림',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 content: Text('해당 주식을 삭제하시겠습니까?'),
                 actions: <Widget>[
                   FlatButton(
-                    child: const Text('네'),
+                    child: const Text(
+                      '네',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     onPressed: () {
                       Get.back(result: true);
                     },
                   ),
                   FlatButton(
-                    child: const Text('아니오'),
+                    child: const Text(
+                      '아니오',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     onPressed: () {
                       Get.back(result: false);
                     },
@@ -331,9 +341,11 @@ class _HomePageState extends State<HomePage> {
                             Expanded(
                               child: TextField(
                                 controller: _tc1,
+                                autofocus: true,
                                 decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.grey[100],
+                                    isDense: true,
                                     border: OutlineInputBorder(
                                         borderSide: BorderSide(
                                             color: Colors.grey[200])),
@@ -369,6 +381,7 @@ class _HomePageState extends State<HomePage> {
                                 decoration: InputDecoration(
                                     filled: true,
                                     fillColor: Colors.grey[100],
+                                    isDense: true,
                                     border: OutlineInputBorder(
                                         borderSide: BorderSide(
                                             color: Colors.grey[200])),

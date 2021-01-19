@@ -5,7 +5,6 @@ import '../model/Stock.dart';
 import '../model/Index.dart';
 import '../model/MyStock.dart';
 import '../db/MyStockDBHelper.dart';
-import 'package:flutter/foundation.dart';
 
 class Bloc {
   List<Stock> stocks = [];
