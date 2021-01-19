@@ -12,5 +12,5 @@
 - rxdart, BloC pattern
 
 ## 시연 영상 📽
-<img src='promotion/ceiling.gif'>
+<img src='promotion/ceiling.gif' width="20%" height="20%">
 
